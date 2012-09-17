@@ -2,27 +2,27 @@ function MulticastDelegate( context, name ) {
 
     var delegate = function() { delegate.execute.apply( delegate, arguments ); };
 
-     delegate.callbackList = [];
- 	delegate.context = context;
+    delegate.callbackList = [];
+    delegate.context = context;
 
- 	delegate.addCallback = addCallback;
- 	delegate.removeCallback = removeCallback;
- 	delegate.execute = execute;
- 	delegate.toString = toString;
-
- 	
- 	if (name)
- 	{
- 		delegate.context.__defineGetter__(name, getter.bind(delegate) );
- 		delegate.context.__defineSetter__(name, setter.bind(delegate) );
- 	}
- 	else 
- 	{
- 		//need to find a good hack for assignment here.
- 	}
-    return delegate;   
+    delegate.addCallback = addCallback;
+    delegate.removeCallback = removeCallback;
+    delegate.execute = execute;
+    delegate.toString = toString;
 	
-	function addCallback(fn) { this.callbackList.push(fn); }
+    if (name)
+    {
+ 	delegate.context.__defineGetter__(name, getter.bind(delegate) );
+ 	delegate.context.__defineSetter__(name, setter.bind(delegate) );
+    }
+    else 
+    {
+ 		//need to find a good hack for assignment here.
+    }
+    return delegate;   
+
+    // Internal Methods
+    function addCallback(fn) { this.callbackList.push(fn); }
   
     function removeCallback(fn) 
     {
@@ -60,7 +60,8 @@ function MulticastDelegate( context, name ) {
     }
  
 }
-    
+ 
+ // Some example code
 function TestWidget() { 	
 	
 	MulticastDelegate(this, "onEvent"); 
