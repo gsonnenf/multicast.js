@@ -12,12 +12,15 @@ Using MulticastDelegate looks something like the following:
     myEventGenerator.onSomeEvent += someGreatClosure;
     myEventGenerator.onSomeEvent += SomeNotSoGoodClosure;
 
-    //Executing:
-    myEventGenerator.onSomeEvent( 1, 3 ); // Calls the methods added above with arguments 1,3
-
-
-    // Subtracting methods
+    //Removing methods
     myEventGenerator.onSomeEvent -= SomeNotSoGoodClosure;
+    
+    //Executing:
+    // Calls the first and second method added above with arguments 1,3. Does not call the third as it has been removed.
+    myEventGenerator.onSomeEvent( 1, 3 ); 
+
+
+    
 
     // Adding a multicast delegate to your object:
 
