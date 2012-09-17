@@ -1,103 +1,91 @@
-(function( window, undefined ) {
+function MulticastDelegate( context, name ) {
 
-    window.action = action;
-    window.actions = actions;
+    var delegate = function() { delegate.execute.apply( delegate, arguments ); };
 
-    function observe(fn) {
-        this.listeners.push(fn);
-    }
-    
-    function unobserve(fn) {
+     delegate.callbackList = [];
+ 	delegate.context = context;
+
+ 	delegate.addCallback = addCallback;
+ 	delegate.removeCallback = removeCallback;
+ 	delegate.execute = execute;
+ 	delegate.toString = toString;
+
+ 	
+ 	if (name)
+ 	{
+ 		delegate.context.__defineGetter__(name, getter.bind(delegate) );
+ 		delegate.context.__defineSetter__(name, setter.bind(delegate) );
+ 	}
+ 	else 
+ 	{
+ 		//need to find a good hack for assignment here.
+ 	}
+    return delegate;   
+	
+	function addCallback(fn) { this.callbackList.push(fn); }
+  
+    function removeCallback(fn) 
+    {
         var index;
-
-        index = this.listeners.indexOf(fn);
-
-        if (index > -1) {
-            this.listeners.splice(index, 1);
-        }
-
+        index = this.callbackList.indexOf(fn);
+        if (index > -1) { this.callbackList.splice(index, 1); }
     }
     
-    function update() {
-            var listeners = this.listeners,
-                len = listeners.length,
-                i;
-    
-    
-            for (i = 0; i < len; ++i) {
-                listeners[i].apply(this.context, arguments);
-            }
-    
+    function execute() 
+    {
+        var callbackList = this.callbackList, len = callbackList.length, i; 
+        for (i = 0; i < len; ++i) { callbackList[i].apply(this.context, arguments); }    
     }
     
-    function getter() {
-        return this;
-    }
+    function getter() { return this; }
     
-    function setter( fn ) {
-        if (fn === this) {
-            return;
-        }
-        this.observe(new Function("return " + fn.replace(/^undefined/, ""))());    
+    function setter( fn ) 
+    { 
+    	console.log(fn);
+    	if (fn == 1) this.addCallback(this.callbackReference);
+    	else if (fn == -1) this.removeCallback(this.callbackReference);
+    	else throw "You may only use the += and -= operators with multicast delegate."
     }
-    
-    
-    function toString() {
-        return "undefined";
+     
+    function toString() { 
+    	var delegator = this; 	
+    	// do not debug in the middle of this code.
+    	if (!Function.prototype.toStringBackup) Function.prototype.toStringBackup = Function.prototype.toString;
+    	Function.prototype.toString = function () {
+    		delegator.callbackReference = this;
+    		Function.prototype.toString = Function.prototype.toStringBackup;
+    		return 1;    		
+    	}     	   	
+    	return 0; 
     }
-
-    function action( context, name ) {
-        var self = function() {
-            self.update.apply( self, arguments );
-        };
-
-        self.listeners = [];
-        self.context = context;
-
-        self.observe = observe;
-        self.unobserve = unobserve;
-        self.update = update;
-        self.toString = toString;
-
-        self.context.__defineGetter__(name, getter.bind(self) );
-        self.context.__defineSetter__(name, setter.bind(self) );
-
-        return self;   
-    }
-    
-    function actions( context, names ) {
-        names.forEach( function( name ){
-            action( context, name );
-        });
-    }
-
-})( this );
-
-
-function Widget() {
-    action(this, "onClose");
+ 
 }
+    
+function TestWidget() { 	
+	
+	MulticastDelegate(this, "onEvent"); 
+	MulticastDelegate(this, "onEvent2" );
+	
+	//does not work yet
+	this.onEvent3 = MulticastDelegate(this);
+    
+	//some test code for scope.
+	var scope = "Your method has bad scope";
+    func = function (a) { "onEvent scope test: " + alert(scope);}
+    scope = "Your closure is working properly.";
+}
+scope = "your method has bad scope."
 
-Widget.prototype = {
 
-    method1: (function() {
-        return function(a) {
-            alert(a);
-        };
-    })(),
+var myWidget = new TestWidget();
 
-    method2: function(a) {
-        alert(a);
-    },
+myWidget.onEvent += func;
+myWidget.onEvent += function(txt) { alert("onEvent msg2:" + txt);  };
+myWidget.onEvent("success?");
 
-    constructor: Widget
-};
-var a = new Widget();
+myWidget.onEvent2 += function(txt) { alert("onEvent2a: " + txt);  };
+myWidget.onEvent2 += function(txt) { alert("onEvent2b: " + txt);  };
+myWidget.onEvent2("success?");
 
-var a = new Widget();
-
-a.onClose += function() {
-  console.log( this, arguments);  
-};
-
-a.onClose("hai");
+myWidget.onEvent3 += function(txt) {alert("onevent3: probably not working yet");}
+	
