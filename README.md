@@ -3,6 +3,8 @@ multicastDelegate.js
 
 This code allows you to use C# style multicast delegates within Javascript. This is useful for events that map to multiple callbacks. Using multicast delegates is a great way to do manual dependency injection for a loosely coupled framework.
 
+This code has had very little testing and is an experiment. Use at your own risk.
+
 Using MulticastDelegate looks something like the following:
 
     //Adding methods:
