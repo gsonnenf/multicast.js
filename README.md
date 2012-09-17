@@ -11,7 +11,7 @@ Using MulticastDelegate looks something like the following:
     myEventGenerator.onSomeEvent += SomeNotSoGoodClosure;
 
     //Executing:
-    myEventGenerator.onSomeEvent( 1, 3 ); // Calls the top 3 methods with parameter 1,3
+    myEventGenerator.onSomeEvent( 1, 3 ); // Calls the methods added above with arguments 1,3
 
 
     // Subtracting methods
